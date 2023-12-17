@@ -26,6 +26,8 @@ Please include the instructions for how to build your microservices and their Do
 The simplest option is to have one Gradle project per microservice/client.
 Alternatively, you could look into [Gradle multi-project builds](https://docs.gradle.org/current/userguide/multi_project_builds.html) if you'd like to reuse code across projects.
 
+Note that if you are an ENG2-M student, you will also need to include the hashtag recommendation microservice.
+
 ## Modeling language and models
 
 You will need Eclipse to do this part. For 2023/24, the easiest approach is to install Eclipse with Epsilon 2.4 as mentioned [in this page](https://eclipse.dev/epsilon/download/).
