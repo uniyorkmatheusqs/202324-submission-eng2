@@ -58,7 +58,7 @@ Putting everything together, we recommend doing this to get started:
 1. Import the metamodel, `.edit` and `.editor` projects.
 1. Rename the projects and their folders to suit your examination number.
 1. Delete the `src` folders from these three projects, as well as the `.ecore` and `.genmodel` file.
-1. Rename the `Y1234.emf` file to suit your examination number.
+1. Rename the `Y1234.emf` file to suit your examination number, and populate it with your metamodel.
 1. Regenerate the `.ecore` and `.genmodel` files, as well as the source code of the tree-based editors.
 1. Run a nested Eclipse instance from the metamodel project.
 1. Import the rest of the modeling projects in the nested Eclipse instance.
