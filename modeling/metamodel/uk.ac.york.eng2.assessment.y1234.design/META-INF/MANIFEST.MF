@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
-Bundle-SymbolicName: uk.ac.york.eng2.assessment.design;singleton:=true
+Bundle-SymbolicName: uk.ac.york.eng2.assessment.y1234.design;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: uk.ac.york.eng2.assessment.design.Activator
 Bundle-Localization: plugin
