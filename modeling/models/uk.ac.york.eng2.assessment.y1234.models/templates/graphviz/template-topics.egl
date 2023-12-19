@@ -1,0 +1,44 @@
+digraph System {
+    node [shape=cylinder, style=filled, fillcolor=red]
+    "[%=name%]" [label=<
+        <table bgcolor="none" border="0">
+            <tr>
+                <td></td>
+            </tr>
+            <tr>
+                <td>[%=name.replace("-", " ").ftuc()%] Topic</td>
+            </tr>
+            <tr>
+                <td>
+                    <table bgcolor="green">
+                        <tr>
+                            <td border="0">Event</td>
+                        </tr>
+                        [%for (p in event.keys){%]
+                        <tr>
+                            <td style="rounded" bgcolor="/ylorbr9/4:/ylorbr9/8">
+                                <table border="0">
+                                    <tr>
+                                        <td>[%=p.name%]</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        [%}%]
+                        [%for (p in event.values){%]
+                        <tr>
+                            <td style="rounded" bgcolor="/purples9/1:/purples9/9">
+                                <table border="0">
+                                    <tr>
+                                        <td>[%=p.name%]</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        [%}%]
+                    </table>
+                </td>
+            </tr>
+        </table>
+    >]
+}

@@ -1,0 +1,23 @@
+digraph System {
+  node [shape=box, style="filled, rounded", fillcolor=yellow];
+
+  [%for (m in microservices){%]
+    "[%= m.name %]" [label="[%= m.name.firstToUpperCase() %] Microservice"]
+  [%}%]
+
+  node [shape=cylinder, style=filled, fillcolor=red]
+
+  [%for (t in topics){%]
+    "[%= t.name %]" [label="[%= t.name.firstToUpperCase() %] Topic"]
+  [%}%]
+  
+  [%for (m in microservices){%]
+    [%for (p in m.publish){%]
+        "[%= m.name %]" -> "[%= p.name %]" [label="Publish"]
+    [%}%]
+    [%for (p in m.listen){%]
+        "[%= p.name %]" -> "[%= m.name %]" [label="Listen"]
+    [%}%]
+  [%}%]
+
+}

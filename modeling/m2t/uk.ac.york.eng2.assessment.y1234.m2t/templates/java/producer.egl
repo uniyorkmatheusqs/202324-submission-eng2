@@ -1,0 +1,51 @@
+package uk.ac.york.eng2.assessment.[%=microserviceName%].events;
+
+import io.micronaut.configuration.kafka.annotation.KafkaClient;
+import io.micronaut.configuration.kafka.annotation.KafkaKey;
+import io.micronaut.configuration.kafka.annotation.Topic;
+import uk.ac.york.eng2.assessment.[%=microserviceName%].domain.*;
+
+@KafkaClient
+public interface [%=topic.name.toJavaNotation()%]Producer {
+	public final String TOPIC_[%=topic.name.toJavaNotationConstant()%] = "[%=topic.name%]";
+
+	@Topic(TOPIC_[%=topic.name.toJavaNotationConstant()%])
+	void [%=topic.action.toJavaNotation().ftlc()%]([%=buildTopicParams(topic.event)%]);
+}
+
+[%
+operation String toJavaNotation() {
+    return self.split("-").collect(s | s.ftuc()).concat();
+}
+
+operation String toJavaNotationConstant() {
+    return self.split("-").collect(s | s.toUpperCase()).concat("_");
+}   
+
+operation buildTopicParams(event) {
+    var params = Bag{};
+
+    if (event.keys.size() == 1) {
+        params.add("@KafkaKey " + event.keys.first().getJavaType() + " " + event.keys.first().name.toJavaNotation().ftlc());
+    } else {
+        params.add(event.name.toJavaNotation().ftlc() + "Key");
+    }
+
+    if (event.values.size() == 1) {
+        params.add(event.values.first().getJavaType() + " " + event.values.first().name.toJavaNotation());
+    } else {
+        params.add(event.name.toJavaNotation() + " " + event.name.toJavaNotation().ftlc());
+    }
+
+    return params.concat(", ");
+} 
+
+operation Property getJavaType(): String {
+    switch (self.type) {
+        case Types#CustomLong : return "Long"; 
+        case Types#CustomString : return "String";
+        case Types#CustomBoolean : return "Boolean"; 
+    }
+    return "Object";
+}   
+%]

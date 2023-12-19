@@ -1,0 +1,41 @@
+configurations {
+    epsilon
+}
+
+repositories {
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+    mavenCentral()
+}
+
+dependencies {
+    epsilon 'org.eclipse.epsilon:org.eclipse.epsilon.workflow:2.4.0'
+    epsilon 'org.eclipse.epsilon:org.eclipse.epsilon.workflow.emf:2.4.0'
+    epsilon ('org.eclipse.emfatic:org.eclipse.emfatic.core:1.1.0-SNAPSHOT') {
+        exclude group: 'org.eclipse.platform'
+    }
+}
+
+task setupEpsilonTasks {
+    // Set up the core Epsilon tasks
+    ant.taskdef(resource: 'org/eclipse/epsilon/workflow/tasks/tasks.xml', 
+        classpath: configurations.epsilon.asPath, loaderref: 'epsilon')
+    // Set up the Epsilon EMF tasks
+    ant.taskdef(resource: 'org/eclipse/epsilon/workflow/tasks/emf/tasks.xml', 
+        classpath: configurations.epsilon.asPath, loaderref: 'epsilon')
+    // Set logging level to info so that EOL's println() is not suppressed
+    ant.lifecycleLogLevel = 'INFO'
+}
+
+task run {
+    dependsOn tasks.setupEpsilonTasks
+    
+    ant.'epsilon.emf.loadModel'(name: 'M', modelfile: '../models/uk.ac.york.eng2.assessment.y1234.models/model.flexmi', metamodelfile: '../metamodel/uk.ac.york.eng2.assessment.y1234/metamodel.emf')
+
+    ant.'epsilon.evl'(src: '../metamodel/uk.ac.york.eng2.assessment.y1234.validation/validation.evl'){ model(ref: 'M') }
+    
+    //ant.'epsilon.egl'(src: 'src/model2graphviz.egx' ){ model(ref: 'M') }
+
+    ant.'epsilon.egl'(src: '../m2t/uk.ac.york.eng2.assessment.y1234.m2t/model2java.egx' ){ model(ref: 'M') }
+}

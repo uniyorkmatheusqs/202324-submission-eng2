@@ -1,0 +1,55 @@
+context System {
+    constraint ValidMinMicroserviceQuantity {
+        check : Microservice.all.notEmpty()
+        message : "must have at least one microservice"
+    }
+}
+
+context Microservice {
+    constraint HasHealthCheck {
+        check {
+            var c = self.controllers.selectOne(c|c.name == "health");
+            
+            if (c == null) {
+                return false;
+            } 
+            
+            return c.endpoints.exists(e|e.name == "ping");
+        }
+        message : self.name + " must have a health endpoint"
+    }
+}
+
+context Topic {
+    critique HasAtLeastOnePublisher {
+        check {
+            var topics: Set;
+
+            var publishSets = Microservice.all.publish;
+            for (publishSet in publishSets) {
+                for (topic in publishSet) {
+                    topics.add(topic.name);
+                }
+            }
+
+            return topics.includes(self.name);
+        }
+        message : self.name + " does not have any publishers"
+    }
+
+    critique HasAtLeastOneListener {
+        check {
+            var topics: Set;
+
+            var listenSets = Microservice.all.listen;
+            for (listenSet in listenSets) {
+                for (topic in listenSet) {
+                    topics.add(topic.name);
+                }
+            }
+
+            return topics.includes(self.name);
+        }
+        message :  self.name + " does not have any listeners"
+    }
+}

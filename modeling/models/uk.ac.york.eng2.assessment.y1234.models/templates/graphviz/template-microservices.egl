@@ -1,0 +1,34 @@
+digraph System {
+    node [shape=box, style="rounded,filled", fillcolor=yellow]
+
+    "[%=name%]" [label=<
+        <table bgcolor="none" border="0">
+            <tr>
+                <td>[%=name.replace("-", " ").ftuc()%] Microservice</td>
+            </tr>
+            [%for (c in controllers){%]
+            <tr>
+                <td>
+                    <table bgcolor="pink">
+                        <tr>
+                            <td border="0">[%=c.name.replace("-", " ").ftuc()%]</td>
+                        </tr>
+                        [%for (e in c.endpoints){%]
+                        <tr>
+                            <td style="rounded" bgcolor="/blues9/1:/blues9/6">
+                                <table border="0">
+                                    <tr>
+                                        <td>[%=e.method%]</td>
+                                        <td>[%=e.route%]</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        [%}%]
+                    </table>
+                </td>
+            </tr>
+            [%}%]
+        </table>
+    >]
+}

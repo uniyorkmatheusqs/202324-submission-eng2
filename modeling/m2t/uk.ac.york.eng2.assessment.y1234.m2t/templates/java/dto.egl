@@ -1,0 +1,37 @@
+package uk.ac.york.eng2.assessment.[%=microserviceName%].dto;
+
+import java.util.List;
+
+import io.micronaut.serde.annotation.Serdeable;
+
+@Serdeable
+public class [%=dtoName.ftuc()%] {
+    [%for (p in params){%]
+    private [%=getJavaType(p.type, p.isArray)%] [%=p.name.ftlc()%];
+
+    [%}%]
+    [%for (p in params){%]
+	public [%=getJavaType(p.type, p.isArray)%] get[%=p.name.ftuc()%]() {
+		return [%=p.name.ftlc()%];
+	}
+
+	public void set[%=p.name.ftuc()%]([%=getJavaType(p.type, p.isArray)%] [%=p.name.ftlc()%]) {
+		this.[%=p.name.ftlc()%] = [%=p.name.ftlc()%];
+	}
+
+    [%}%]
+}
+
+[%
+operation getJavaType(type, isArray) {
+    var baseType;
+    switch (type) {
+        case Types#CustomLong : baseType = "Long";
+        case Types#CustomString : baseType = "String";
+        case Types#CustomBoolean : baseType = "Boolean";
+        default: baseType = "Object";
+    }
+
+    return isArray ? "List<" + baseType + ">" : baseType;
+}   
+%]

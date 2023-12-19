@@ -1,0 +1,52 @@
+@namespace(uri="eng-assessment", prefix="mm")
+package system;
+
+class System {
+    val Microservice[*] services;
+    val Topic[*] topics;
+}
+
+class Microservice {
+    attr String name;
+    val Controller[*] controllers;
+    ref Topic[*] publish;
+    ref Topic[*] listen;
+}
+
+class Controller {
+    attr String name;
+    attr String uri;
+    val Endpoint[*] endpoints;
+}
+
+class Endpoint {
+    attr String name;
+    attr String method;
+    attr String route;
+    val Property[*] routeParams;
+    val Property[*] queryParams;
+}
+
+class Topic {
+    attr String name;
+    attr String action;
+    val Event event;
+}
+
+class Event {
+    attr String name;
+    val Property[*] keys;
+    val Property[*] values;
+}
+
+class Property {
+    attr String name;
+    attr Types type;
+    attr Boolean isArray = false; 
+}
+
+enum Types {
+    CustomLong;
+    CustomString;
+    CustomBoolean;
+}

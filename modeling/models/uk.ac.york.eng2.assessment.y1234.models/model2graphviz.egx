@@ -1,0 +1,47 @@
+rule System2Graphviz
+    transform n : system::System {
+
+    template : "templates/graphviz/template-big-picture.egl"
+
+    target : "src-gen/visualization/big-picture.dot"
+
+    parameters : Map{
+        "path" = Sequence{"System"},
+        "icon" = "diagram-ffffff",
+        "format" = "graphviz-circo",
+        "microservices" = n.services,
+        "topics" = n.topics
+    }
+}
+
+rule Microservice2Graphviz
+    transform m : system::Microservice {
+
+    template : "templates/graphviz/template-microservices.egl"
+
+    target : "src-gen/visualization/microservices/microservice-" + m.name + ".dot"
+
+    parameters : Map{
+        "path" = Sequence{"System", "Microservices", m.name},
+        "icon" = "diagram-c0c0c0",
+        "format" = "graphviz-dot",
+        "controllers" = m.controllers,
+        "name" = m.name
+    }
+}
+
+rule Topic2Graphviz
+    transform t : system::Topic {
+
+    template : "templates/graphviz/template-topics.egl"
+
+    target : "src-gen/visualization/topics/topic-" + t.name + ".dot"
+
+    parameters : Map{
+        "path" = Sequence{"System", "Topics", t.name},
+        "icon" = "diagram-c0c0c0",
+        "format" = "graphviz-dot",
+        "event" = t.event,
+        "name" = t.name
+    }
+}
