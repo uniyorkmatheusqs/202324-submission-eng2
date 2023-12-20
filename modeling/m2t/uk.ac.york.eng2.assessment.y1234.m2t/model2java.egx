@@ -4,6 +4,7 @@ pre {
     var dtosData = Map{};
     var publishers = Bag{};
     var listeners = Bag{};
+    var events = Bag{};
 
     for (m in Microservice) {
         for (c in m.controllers) {
@@ -19,11 +20,26 @@ pre {
         }
 
         for (t in m.publish) {
-            publishers.add(new Tuple(topic = t, microserviceName = m.name));
+            var publisherData = new Tuple(topic = t, microserviceName = m.name, isKey = false, shouldCreateProperties = true);
+            
+            publishers.add(publisherData);
+
+            events.add(publisherData);
+
+            if (t.event.keys.size > 1) {
+                events.add(new Tuple(topic = t, microserviceName = m.name, isKey = true, shouldCreateProperties = true));    
+            }
         }
 
         for (t in m.listen) {
-            listeners.add(new Tuple(topic = t, microserviceName = m.name));
+            var listenerData = new Tuple(topic = t, microserviceName = m.name, isKey = false, shouldCreateProperties = false);
+            listeners.add(listenerData);
+        
+            events.add(listenerData);
+
+            if (t.event.keys.size > 1) {
+                events.add(new Tuple(topic = t, microserviceName = m.name, isKey = true, shouldCreateProperties = true));    
+            }
         }
     }
 }
@@ -83,3 +99,23 @@ rule Listener2Java transform t : Tuple in : listeners {
     }
 }
 
+rule Event2Java transform t : Tuple in : events {
+    pre {
+        var name = t.isKey ? t.topic.event.name.ftuc() + "EventKey": t.topic.event.name.ftuc() + "Event";
+        var params = t.isKey ? t.topic.event.keys : t.topic.event.values;
+
+        if (t.shouldCreateProperties == false) {
+            params = Bag{};
+        }
+    }
+
+    template : "templates/java/event.egl"
+
+    target : "../../../microservices/" + t.microserviceName + "-microservice/src-gen/main/java/uk/ac/york/eng2/assessment/" + t.microserviceName + "/events/" + name + ".java"
+
+    parameters : Map {
+        "microserviceName" = t.microserviceName,
+        "params" = params,
+        "name" = name
+    }
+}

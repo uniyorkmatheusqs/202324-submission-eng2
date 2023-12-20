@@ -1,4 +1,4 @@
-package uk.ac.york.eng2.assessment.[%=microserviceName%].controllers;
+package main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].controllers;
 
 import java.util.*;
 
@@ -6,9 +6,9 @@ import javax.transaction.Transactional;
 
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
-import uk.ac.york.eng2.assessment.[%=microserviceName%].*;
+import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].dtos.*;
 
-public abstract class I[%=controller.name.ftuc()%]Controller {
+public interface I[%=controller.name.ftuc()%]Controller {
     public static final String BASE_URI = "[%=controller.uri%]";
 
     [%for (e in controller.endpoints) {%]
