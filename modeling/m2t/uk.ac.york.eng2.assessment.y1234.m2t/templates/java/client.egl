@@ -1,0 +1,40 @@
+package main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].[%=controller.name%];
+
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.*;
+import io.micronaut.http.client.annotation.Client;
+import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].domain.*;
+import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].dtos.*;
+
+
+@Client("${videos.url:`http://localhost:8080[%=controller.uri%]`}")
+public interface [%=controller.name.ftuc()%]Client {
+    
+    [%for (e in controller.endpoints) {%]
+    @[%=e.method.toLowerCase().ftuc()%]("[%=e.route%]")
+    public HttpResponse<String> [%=e.name%]([%=buildEndpointParams(e.routeParams, e.queryParams, e.name, controller.name)%]);
+    
+    [%}%]
+}
+
+[%
+operation buildEndpointParams(routeParams, queryParams, endpointName, controllerName) {
+    var r = routeParams.collect(p | getJavaType(p.type) + " " + p.name);
+
+    if (queryParams.notEmpty()) {
+        var paramName = endpointName.toLowerCase() + controllerName.ftuc() + "DTO";
+        r.add("@Body " + paramName.ftuc() + " " + paramName);
+    }
+
+    return r.concat(", ");
+} 
+
+operation getJavaType(type) {
+    switch (type) {
+        case Types#CustomLong : return "Long"; 
+        case Types#CustomString : return "String";
+        case Types#CustomBoolean : return "Boolean"; 
+    }
+    return "Object";
+}   
+%]

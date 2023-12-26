@@ -6,12 +6,12 @@
       <endpoint name="ping" method="GET" route="/"/>
     </controller>
     <controller name="video" uri="/videos">
-      <endpoint name="list" method="GET" route="/?{filter*}"/>
+      <endpoint name="list" method="GET" route="/"/>
 
       <endpoint name="create" method="POST" route="/">
         <queryparams>
           <property name="title" type="CustomString" />
-          <property name="userId" type="CustomString" />
+          <property name="userId" type="CustomLong" />
           <property name="hashtags" type="CustomString" isarray="true"/>
         </queryparams>
       </endpoint>
@@ -21,7 +21,7 @@
           <property name="id" type="CustomLong" />
         </routeparams>
         <queryparams>
-          <property name="userId" type="CustomString" />
+          <property name="userId" type="CustomLong" />
         </queryparams>
       </endpoint>
 
@@ -30,7 +30,7 @@
           <property name="id" type="CustomLong" />
         </routeparams>
         <queryparams>
-          <property name="userId" type="CustomString" />
+          <property name="userId" type="CustomLong" />
         </queryparams>
       </endpoint>
 
@@ -39,7 +39,7 @@
           <property name="id" type="CustomLong" />
         </routeparams>
         <queryparams>
-          <property name="userId" type="CustomString" />
+          <property name="userId" type="CustomLong" />
         </queryparams>
       </endpoint>
     </controller>
@@ -94,6 +94,7 @@
         <property name="id" type="CustomLong"/>
       </keys>
       <values>
+        <property name="id" type="CustomLong"/>
         <property name="userId" type="CustomLong"/>
         <property name="title" type="CustomString"/>
       </values>
@@ -121,6 +122,7 @@
         <property name="id" type="CustomLong"/>
       </keys>
       <values>
+        <property name="id" type="CustomLong"/>
         <property name="userId" type="CustomLong"/>
         <property name="hashtag" type="CustomString"/>
       </values>

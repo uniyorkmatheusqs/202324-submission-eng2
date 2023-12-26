@@ -1,14 +1,15 @@
 pre {
-    var data = Bag{};
+    var controllerData = Bag{};
     var dtos = Set{};
     var dtosData = Map{};
     var publishers = Bag{};
     var listeners = Bag{};
     var events = Bag{};
+    var endpointsData = Bag{};
 
     for (m in Microservice) {
         for (c in m.controllers) {
-            data.add(new Tuple(name = m.name, controller = c));
+            controllerData.add(new Tuple(name = m.name, controller = c));
         
             var endpoints = c.endpoints.select(e | e.queryParams.notEmpty()); 
 
@@ -17,6 +18,8 @@ pre {
                 dtos.add(dto);
                 dtosData.put(dto, new Tuple(mName = m.name, params = e.queryParams));
             }
+
+            endpointsData.addAll(c.endpoints.collect(e | new Tuple(mName = m.name, controllerName = c.name, endpoint = e)).asBag());
         }
 
         for (t in m.publish) {
@@ -44,7 +47,7 @@ pre {
     }
 }
 
-rule Controller2Java transform m : Tuple in : data {
+rule Controller2Java transform m : Tuple in : controllerData {
     template : "templates/java/controller.egl"
 
     target : "../../../microservices/" + m.name + "-microservice/src-gen/main/java/uk/ac/york/eng2/assessment/" + m.name + "/controllers/I" + m.controller.name.ftuc() + "Controller.java"
@@ -73,15 +76,11 @@ rule Dto2Java transform dto : String in : dtos {
     }
 }
 
-operation String toJavaNotation(): String {
-    return self.split("-").collect(s | s.ftuc()).concat();
-}
-
 rule Publisher2Java transform t : Tuple in : publishers {
     template : "templates/java/producer.egl"
-
+    
     target : "../../../microservices/" + t.microserviceName + "-microservice/src-gen/main/java/uk/ac/york/eng2/assessment/" + t.microserviceName + "/events/" + t.topic.name.toJavaNotation() + "Producer.java"
-
+    
     parameters : Map {
         "microserviceName" = t.microserviceName,
         "topic" = t.topic
@@ -90,9 +89,9 @@ rule Publisher2Java transform t : Tuple in : publishers {
 
 rule Listener2Java transform t : Tuple in : listeners {
     template : "templates/java/listener.egl"
-
+    
     target : "../../../microservices/" + t.microserviceName + "-microservice/src-gen/main/java/uk/ac/york/eng2/assessment/" + t.microserviceName + "/events/I" + t.topic.name.toJavaNotation() + "Consumer.java"
-
+    
     parameters : Map {
         "microserviceName" = t.microserviceName,
         "topic" = t.topic
@@ -103,19 +102,64 @@ rule Event2Java transform t : Tuple in : events {
     pre {
         var name = t.isKey ? t.topic.event.name.ftuc() + "EventKey": t.topic.event.name.ftuc() + "Event";
         var params = t.isKey ? t.topic.event.keys : t.topic.event.values;
-
+        
         if (t.shouldCreateProperties == false) {
             params = Bag{};
         }
     }
-
+    
     template : "templates/java/event.egl"
-
+    
     target : "../../../microservices/" + t.microserviceName + "-microservice/src-gen/main/java/uk/ac/york/eng2/assessment/" + t.microserviceName + "/events/" + name + ".java"
-
+    
     parameters : Map {
         "microserviceName" = t.microserviceName,
         "params" = params,
         "name" = name
     }
+}
+
+rule DtoCli2Java transform dto : String in : dtos {
+    pre {
+        var d = dtosData.get(dto);
+        var mName = d.mName;
+        var params = d.params;
+    }
+
+    template : "templates/java/dto.egl"
+
+    target : "../../../microservices/client/" + mName + "-cli/src-gen/main/java/uk/ac/york/eng2/assessment/" + mName + "/cli/dtos/" + dto.ftuc() + ".java"
+
+    parameters : Map {
+        "microserviceName" = mName,
+        "dtoName" = dto,
+        "params" = params
+    }
+}
+
+rule Command2Java transform e : Tuple in : endpointsData {
+    template : "templates/java/command.egl"
+
+    target : "../../../microservices/client/" + e.mName + "-cli/src-gen/main/java/uk/ac/york/eng2/assessment/" + e.mName + "/cli/" + e.controllerName + "/" + e.endpoint.name.ftuc() + "Command.java"
+
+    parameters : Map {
+        "microserviceName" = e.mName,
+        "endpoint" = e.endpoint,
+        "controllerName" = e.controllerName
+    }
+}
+
+rule Client2Java transform m : Tuple in : controllerData {
+    template : "templates/java/client.egl"
+
+    target : "../../../microservices/client/" + m.name + "-cli/src-gen/main/java/uk/ac/york/eng2/assessment/" + m.name + "/cli/" + m.controller.name + "/" + m.controller.name.ftuc() + "Client.java"
+
+    parameters : Map {
+        "microserviceName" = m.name,
+        "controller" = m.controller
+    }
+}
+
+operation String toJavaNotation(): String {
+    return self.split("-").collect(s | s.ftuc()).concat();
 }

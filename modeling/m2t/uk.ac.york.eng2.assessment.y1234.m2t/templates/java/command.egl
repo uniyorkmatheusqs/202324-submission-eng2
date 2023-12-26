@@ -1,0 +1,52 @@
+package main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].[%=controllerName%];
+
+import io.micronaut.http.HttpResponse;
+import jakarta.inject.Inject;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
+import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].dtos.*;
+
+@Command(name="[%=endpoint.name%]-[%=controllerName%]", description="Adds a user", mixinStandardHelpOptions = true)
+public class AddUserCommand implements Runnable {
+    
+    @Inject
+	private [%=controllerName.ftuc()%]Client client;
+    
+    [%for (param in endpoint.routeParams.includingAll(endpoint.queryParams)) {%]
+	@Parameters(index="[%=loopCount - 1%]")
+	private [%=getJavaType(param.type, param.isArray)%] [%=param.name.ftlc()%];
+
+    [%}%]
+	@Override
+	public void run() {
+        [%var params = endpoint.routeParams.includingAll(endpoint.queryParams);%]
+        [%if (params.size() == 0) {%]
+		HttpResponse<Void> response = client.[%=endpoint.name%]();
+        [%} else if (params.size() == 1) {%]
+        HttpResponse<Void> response = client.[%=endpoint.name%]([%=params.first().name%]);
+        [%} else {%]
+		[%=endpoint.name.ftuc()%][%=controllerName.ftuc()%]DTO dto = new [%=endpoint.name.ftuc()%][%=controllerName.ftuc()%]DTO();
+
+            [%for (param in endpoint.routeParams.includingAll(endpoint.queryParams)) {%]
+		dto.set[%=param.name.ftuc()%]([%=param.name.ftlc()%]);
+            [%}%]
+        
+        HttpResponse<Void> response = client.[%=endpoint.name%](dto);
+        [%}%]
+		System.out.println("Server responded with: " + response.getStatus() + ", " + response.body());
+	}
+}
+
+[%
+operation getJavaType(type, isArray) {
+    var baseType;
+    switch (type) {
+        case Types#CustomLong : baseType = "Long";
+        case Types#CustomString : baseType = "String";
+        case Types#CustomBoolean : baseType = "Boolean";
+        default: baseType = "Object";
+    }
+
+    return isArray ? "List<" + baseType + ">" : baseType;
+}   
+%]

@@ -13,17 +13,17 @@ public interface I[%=controller.name.ftuc()%]Controller {
 
     [%for (e in controller.endpoints) {%]
     @[%=e.method.toLowerCase().ftuc()%]("[%=e.route%]")
-    public abstract HttpResponse<String> [%=e.name%]([%=buildEndpointParams(e.routeParams, e.queryParams, e.name, microserviceName)%]);
+    public abstract HttpResponse<String> [%=e.name%]([%=buildEndpointParams(e.routeParams, e.queryParams, e.name, controller.name)%]);
     
     [%}%]
 }
 
 [%
-operation buildEndpointParams(routeParams, queryParams, eName, mName) {
+operation buildEndpointParams(routeParams, queryParams, endpointName, controllerName) {
     var r = routeParams.collect(p | getJavaType(p.type) + " " + p.name);
 
     if (queryParams.notEmpty()) {
-        var paramName = eName.toLowerCase() + mName.ftuc() + "DTO";
+        var paramName = endpointName.toLowerCase() + controllerName.ftuc() + "DTO";
         r.add("@Body " + paramName.ftuc() + " " + paramName);
     }
 
