@@ -5,7 +5,7 @@ import uk.ac.york.eng2.assessment.video.domain.VideoInteractionKey;
 
 public class InteractionEventKeyImpl extends InteractionEventKey {
     public InteractionEventKeyImpl(VideoInteractionKey key) {
-        this.setUserId(key.getUserId());
-        this.setVideoId(key.getVideoId());
+        this.setUserId(key.getUserId().toString());
+        this.setVideoId(key.getVideoId().toString());
     }
 }

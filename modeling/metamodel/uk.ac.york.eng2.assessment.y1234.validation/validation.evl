@@ -32,6 +32,13 @@ context Topic {
                 }
             }
 
+            var streamSets = Microservice.all.customKStream;
+            for (streamSet in streamSets) {
+                for (t in streamSet) {
+                    topics.add(t.name);
+                }
+            }
+
             return topics.includes(self.name);
         }
         message : self.name + " does not have any publishers"

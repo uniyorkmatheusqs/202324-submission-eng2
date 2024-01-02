@@ -1,4 +1,4 @@
-package main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].dtos;
+package [%=package%];
 
 import java.util.List;
 

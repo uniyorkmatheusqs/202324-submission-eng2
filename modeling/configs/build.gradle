@@ -35,7 +35,7 @@ task run {
 
     ant.'epsilon.evl'(src: '../metamodel/uk.ac.york.eng2.assessment.y1234.validation/validation.evl'){ model(ref: 'M') }
     
-    //ant.'epsilon.egl'(src: 'src/model2graphviz.egx' ){ model(ref: 'M') }
-
     ant.'epsilon.egl'(src: '../m2t/uk.ac.york.eng2.assessment.y1234.m2t/model2java.egx' ){ model(ref: 'M') }
+
+    ant.'epsilon.egl'(src: '../models/uk.ac.york.eng2.assessment.y1234.models/model2graphviz.egx' ){ model(ref: 'M') }
 }

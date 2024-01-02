@@ -4,8 +4,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.transaction.Transactional;
 
@@ -59,11 +57,18 @@ public class VideoController implements IVideoController {
 	private final String USER_NOT_FOUND_MESSAGE = "user with id %d not found";
 	private final String VIDEO_NOT_FOUND_MESSAGE = "video with id %d not found";
 
-    @Override
-    public HttpResponse<String> list() {
-        return null;
-    }
+	@Override
+	public List<Video> list() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'list'");
+	}
 
+	@Override
+	@Transactional
+	public Video listOne(Long id) {
+		return this.repo.findById(id).orElse(null);
+	}
+	
     @Override
     @Transactional
     public HttpResponse<String> create(CreateVideoDTO createVideoDTO) {
@@ -89,7 +94,7 @@ public class VideoController implements IVideoController {
 		}
 
 		Iterable<Hashtag> hashtagsFound = hashtagsRepo.saveAllValues(hashtagsParam);
-		Set<Hashtag> hashtags = toSet(hashtagsFound);
+		List<Hashtag> hashtags = toSet(hashtagsFound);
 
 		Video video = new Video();
 		video.setTitle(createVideoDTO.getTitle());
@@ -98,7 +103,6 @@ public class VideoController implements IVideoController {
 
 		repo.save(video);
 
-		System.out.println(">> HERE " + video.getId());
 		postProducer.post(video.getId().toString(), new PostEventImpl(video));
 
 		return HttpResponse.created(URI.create("/videos/" + video.getId()));
@@ -190,8 +194,8 @@ public class VideoController implements IVideoController {
 		return HttpResponse.noContent();
 	}
 
-	private <T> Set<T> toSet(final Iterable<T> iterable) {
-		final Set<T> set = new TreeSet<>();
+	private <T> List<T> toSet(final Iterable<T> iterable) {
+		final List<T> set = new ArrayList<>();
 		for (Iterator<T> i = iterable.iterator(); i.hasNext();) {
 			set.add(i.next());
 		}

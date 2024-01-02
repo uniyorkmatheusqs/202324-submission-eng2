@@ -11,6 +11,7 @@ class Microservice {
     val Controller[*] controllers;
     ref Topic[*] publish;
     ref Topic[*] listen;
+    ref Topic[*] customKStream;
 }
 
 class Controller {
@@ -25,6 +26,7 @@ class Endpoint {
     attr String route;
     val Property[*] routeParams;
     val Property[*] queryParams;
+    val Property response;
 }
 
 class Topic {
@@ -49,4 +51,5 @@ enum Types {
     CustomLong;
     CustomString;
     CustomBoolean;
+    CustomObject;
 }

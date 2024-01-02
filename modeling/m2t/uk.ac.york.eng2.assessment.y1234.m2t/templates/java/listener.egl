@@ -1,12 +1,10 @@
 package main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].events;
 
-import io.micronaut.configuration.kafka.annotation.KafkaKey;
-import io.micronaut.configuration.kafka.annotation.KafkaListener;
-import io.micronaut.configuration.kafka.annotation.Topic;
-import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].domain.*;
+import java.util.List;
+import io.micronaut.configuration.kafka.annotation.*;
 
 public abstract class I[%=topic.name.toJavaNotation()%]Consumer {
-	public final String TOPIC_[%=topic.name.toJavaNotationConstant()%] = "[%=topic.name%]";
+	public static final String TOPIC_[%=topic.name.toJavaNotationConstant()%] = "[%=topic.name%]";
 
     @Topic(TOPIC_[%=topic.name.toJavaNotationConstant()%])
 	public abstract void [%=topic.action.toJavaNotation().ftlc()%]([%=buildTopicParams(topic.event)%]);
@@ -27,26 +25,29 @@ operation buildTopicParams(event) {
     if (event.keys.size() == 1) {
         params.add("@KafkaKey " + event.keys.first().getJavaType() + " " + event.keys.first().name.toJavaNotation().ftlc());
     } else {
-        var eventName = event.name.toJavaNotation().ftlc() + "Key";
-        params.add(eventName.ftuc() + " " + eventName);
+        var eventName = event.name.toJavaNotation().ftlc();
+        params.add(eventName.ftuc() + "EventKey" + " " + eventName + "EventKey");
     }
 
     if (event.values.size() == 1) {
-        params.add(event.values.first().getJavaType() + " " + event.values.first().name.toJavaNotation());
+        params.add(event.values.first().getJavaType() + " " + event.values.first().name.toJavaNotation().ftlc());
     } else {
         var eventName = event.name.toJavaNotation().ftlc();
-        params.add(eventName.ftuc() + " " + eventName);
+        params.add(eventName.ftuc() + "Event" + " " + eventName + "Event");
     }
 
     return params.concat(", ");
 } 
 
 operation Property getJavaType(): String {
+    var baseType;
     switch (self.type) {
-        case Types#CustomLong : return "Long"; 
-        case Types#CustomString : return "String";
-        case Types#CustomBoolean : return "Boolean"; 
+        case Types#CustomLong : baseType = "Long";
+        case Types#CustomString : baseType = "String";
+        case Types#CustomBoolean : baseType = "Boolean";
+        default: baseType = "Object";
     }
-    return "Object";
+
+    return self.isArray ? "List<" + baseType + ">" : baseType;
 }   
 %]

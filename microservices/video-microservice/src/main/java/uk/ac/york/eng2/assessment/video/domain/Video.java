@@ -1,5 +1,6 @@
 package uk.ac.york.eng2.assessment.video.domain;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -27,7 +28,7 @@ public class Video {
 	@Column(nullable = false)
 	private String title;
 	
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
 	@JoinColumn(name="user_id", nullable=false)
     private User user;
 	
@@ -35,8 +36,8 @@ public class Video {
 	@JsonIgnore
     private Set<VideoInteraction> usersDetails;
 	
-	@ManyToMany(fetch = FetchType.LAZY)
-    private Set<Hashtag> hashtags;
+	@ManyToMany(fetch = FetchType.EAGER)
+    private List<Hashtag> hashtags;
 
 	public Long getId() {
 		return id;
@@ -62,11 +63,11 @@ public class Video {
 		this.user = user;
 	}
 
-	public Set<Hashtag> getHashtags() {
+	public List<Hashtag> getHashtags() {
 		return hashtags;
 	}
 
-	public void setHashtags(Set<Hashtag> hashtags) {
+	public void setHashtags(List<Hashtag> hashtags) {
 		this.hashtags = hashtags;
 	}
 

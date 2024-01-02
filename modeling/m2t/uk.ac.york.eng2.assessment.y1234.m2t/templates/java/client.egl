@@ -1,25 +1,25 @@
-package main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].[%=controller.name%];
+package main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].cli.[%=controller.name%];
 
+import java.util.List;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.annotation.Client;
-import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].domain.*;
-import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].dtos.*;
-
+import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].cli.dtos.*;
+import uk.ac.york.eng2.assessment.[%=microserviceName%].cli.domain.*;
 
 @Client("${videos.url:`http://localhost:8080[%=controller.uri%]`}")
 public interface [%=controller.name.ftuc()%]Client {
     
     [%for (e in controller.endpoints) {%]
     @[%=e.method.toLowerCase().ftuc()%]("[%=e.route%]")
-    public HttpResponse<String> [%=e.name%]([%=buildEndpointParams(e.routeParams, e.queryParams, e.name, controller.name)%]);
+    public [%=getEndpointType(e.response)%] [%=e.name%]([%=buildEndpointParams(e.routeParams, e.queryParams, e.name, controller.name)%]);
     
     [%}%]
 }
 
 [%
 operation buildEndpointParams(routeParams, queryParams, endpointName, controllerName) {
-    var r = routeParams.collect(p | getJavaType(p.type) + " " + p.name);
+    var r = routeParams.collect(p | p.getJavaType() + " " + p.name);
 
     if (queryParams.notEmpty()) {
         var paramName = endpointName.toLowerCase() + controllerName.ftuc() + "DTO";
@@ -29,12 +29,29 @@ operation buildEndpointParams(routeParams, queryParams, endpointName, controller
     return r.concat(", ");
 } 
 
-operation getJavaType(type) {
-    switch (type) {
-        case Types#CustomLong : return "Long"; 
-        case Types#CustomString : return "String";
-        case Types#CustomBoolean : return "Boolean"; 
+operation getEndpointType(property): String {
+    if (property == null) {
+        return "HttpResponse<String>";
     }
-    return "Object";
+
+    var javaType = property.getJavaType();
+    if (property.type == Types#CustomObject) {
+        return javaType;
+    }
+
+    return "HttpResponse<" + javaType + ">";
+}
+
+operation Property getJavaType(): String {
+    var baseType;
+    switch (self.type) {
+        case Types#CustomLong : baseType = "Long";
+        case Types#CustomString : baseType = "String";
+        case Types#CustomBoolean : baseType = "Boolean";
+        case Types#CustomObject : baseType = self.name.ftuc();
+        default: baseType = "Object";
+    }
+
+    return self.isArray ? "List<" + baseType + ">" : baseType;
 }   
 %]

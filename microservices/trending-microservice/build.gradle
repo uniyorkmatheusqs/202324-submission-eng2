@@ -26,6 +26,13 @@ dependencies {
     runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
 }
 
+sourceSets {
+    main {
+        java {
+            srcDirs 'src-gen'
+        }
+    }
+}
 
 application {
     mainClass.set("uk.ac.york.eng2.assessment.trending.Application")

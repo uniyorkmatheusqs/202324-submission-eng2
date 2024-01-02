@@ -8,12 +8,15 @@ digraph System {
   node [shape=cylinder, style=filled, fillcolor=red]
 
   [%for (t in topics){%]
-    "[%= t.name %]" [label="[%= t.name.firstToUpperCase() %] Topic"]
+    "[%= t.name %]" [label="[%= t.name %] Topic"]
   [%}%]
   
   [%for (m in microservices){%]
     [%for (p in m.publish){%]
         "[%= m.name %]" -> "[%= p.name %]" [label="Publish"]
+    [%}%]
+    [%for (p in m.customKStream){%]
+        "[%= m.name %]" -> "[%= p.name %]" [label="Stream"]
     [%}%]
     [%for (p in m.listen){%]
         "[%= p.name %]" -> "[%= m.name %]" [label="Listen"]

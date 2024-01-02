@@ -1,15 +1,24 @@
 package uk.ac.york.eng2.assessment.video.cli;
 
 import io.micronaut.configuration.picocli.PicocliRunner;
-import io.micronaut.context.ApplicationContext;
-
-import picocli.CommandLine;
+import main.java.uk.ac.york.eng2.assessment.video.cli.user.CreateUserCommand;
+import main.java.uk.ac.york.eng2.assessment.video.cli.video.CreateVideoCommand;
+import main.java.uk.ac.york.eng2.assessment.video.cli.video.DislikeVideoCommand;
+import main.java.uk.ac.york.eng2.assessment.video.cli.video.LikeVideoCommand;
+import main.java.uk.ac.york.eng2.assessment.video.cli.video.ListVideoCommand;
+import main.java.uk.ac.york.eng2.assessment.video.cli.video.WatchVideoCommand;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 
 @Command(name = "video-cli", description = "...",
-        mixinStandardHelpOptions = true)
+        mixinStandardHelpOptions = true, subcommands = {
+            CreateVideoCommand.class,
+            DislikeVideoCommand.class,
+            LikeVideoCommand.class,
+            ListVideoCommand.class,
+            WatchVideoCommand.class,
+            CreateUserCommand.class
+        })
 public class VideoCliCommand implements Runnable {
 
     @Option(names = {"-v", "--verbose"}, description = "...")

@@ -1,52 +1,82 @@
-package main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].[%=controllerName%];
+package main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].cli.[%=controllerName%];
 
+import java.util.List;
 import io.micronaut.http.HttpResponse;
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
-import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].dtos.*;
+import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].cli.dtos.*;
+import uk.ac.york.eng2.assessment.[%=microserviceName%].cli.domain.*;
 
-@Command(name="[%=endpoint.name%]-[%=controllerName%]", description="Adds a user", mixinStandardHelpOptions = true)
-public class AddUserCommand implements Runnable {
+@Command(name="[%=endpoint.name%]-[%=controllerName%]", description="[%=endpoint.name.ftuc()%] [%=controllerName.ftlc()%]", mixinStandardHelpOptions = true)
+public class [%=endpoint.name.ftuc()%][%=controllerName.ftuc()%]Command implements Runnable {
     
     @Inject
 	private [%=controllerName.ftuc()%]Client client;
     
-    [%for (param in endpoint.routeParams.includingAll(endpoint.queryParams)) {%]
-	@Parameters(index="[%=loopCount - 1%]")
-	private [%=getJavaType(param.type, param.isArray)%] [%=param.name.ftlc()%];
+    [%for (param in endpoint.routeParams.includingAll(endpoint.queryParams).sortBy(p| p.isArray)) {%]
+	@Parameters(index="[%=loopCount - 1%]"[%=param.isArray ? ', arity="*"': ''%])
+	private [%=param.getJavaType()%] [%=param.name.ftlc()%];
 
     [%}%]
 	@Override
 	public void run() {
-        [%var params = endpoint.routeParams.includingAll(endpoint.queryParams);%]
-        [%if (params.size() == 0) {%]
-		HttpResponse<Void> response = client.[%=endpoint.name%]();
-        [%} else if (params.size() == 1) {%]
-        HttpResponse<Void> response = client.[%=endpoint.name%]([%=params.first().name%]);
-        [%} else {%]
+        [%if (endpoint.queryParams.size() > 0) {%]
 		[%=endpoint.name.ftuc()%][%=controllerName.ftuc()%]DTO dto = new [%=endpoint.name.ftuc()%][%=controllerName.ftuc()%]DTO();
 
-            [%for (param in endpoint.routeParams.includingAll(endpoint.queryParams)) {%]
+            [%for (param in endpoint.queryParams) {%]
 		dto.set[%=param.name.ftuc()%]([%=param.name.ftlc()%]);
             [%}%]
-        
-        HttpResponse<Void> response = client.[%=endpoint.name%](dto);
+    
         [%}%]
-		System.out.println("Server responded with: " + response.getStatus() + ", " + response.body());
+        [%var res = getEndpointType(endpoint.response);%]
+        [%=res%] response = client.[%=endpoint.name%]([%=getClientParams(endpoint.routeParams, endpoint.queryParams)%]);
+		[%if("HttpResponse".isSubstringOf(res)){%]
+        System.out.println("Server responded with: " + response.code() + " " + response.getBody());
+        [%} else {%]
+        System.out.println("Server responded with: " + response.toString());
+        [%}%]
 	}
 }
 
 [%
-operation getJavaType(type, isArray) {
+operation getClientParams(routeParams, queryParams) {
+    var params = Bag{};
+
+    if (routeParams.size() > 0) {
+        params.addAll(endpoint.routeParams.collect(p| p.name));
+    }
+
+    if (queryParams.size() > 0) {
+        params.add("dto");
+    }
+
+    return params.concat(", ");
+}  
+
+operation getEndpointType(property): String {
+    if (property == null) {
+        return "HttpResponse<String>";
+    }
+
+    var javaType = property.getJavaType();
+    if (property.type == Types#CustomObject) {
+        return javaType;
+    }
+
+    return "HttpResponse<" + javaType + ">";
+}
+
+operation Property getJavaType(): String {
     var baseType;
-    switch (type) {
+    switch (self.type) {
         case Types#CustomLong : baseType = "Long";
         case Types#CustomString : baseType = "String";
         case Types#CustomBoolean : baseType = "Boolean";
+        case Types#CustomObject : baseType = self.name.ftuc();
         default: baseType = "Object";
     }
 
-    return isArray ? "List<" + baseType + ">" : baseType;
+    return self.isArray ? "List<" + baseType + ">" : baseType;
 }   
 %]

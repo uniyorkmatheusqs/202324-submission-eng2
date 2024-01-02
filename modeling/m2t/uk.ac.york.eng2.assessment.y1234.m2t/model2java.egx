@@ -63,6 +63,7 @@ rule Dto2Java transform dto : String in : dtos {
         var d = dtosData.get(dto);
         var mName = d.mName;
         var params = d.params;
+        var package = "main.java.uk.ac.york.eng2.assessment." + mName + ".dtos";
     }
 
     template : "templates/java/dto.egl"
@@ -72,7 +73,8 @@ rule Dto2Java transform dto : String in : dtos {
     parameters : Map {
         "microserviceName" = mName,
         "dtoName" = dto,
-        "params" = params
+        "params" = params,
+        "package" = package
     }
 }
 
@@ -124,6 +126,7 @@ rule DtoCli2Java transform dto : String in : dtos {
         var d = dtosData.get(dto);
         var mName = d.mName;
         var params = d.params;
+        var package = "main.java.uk.ac.york.eng2.assessment." + mName + ".cli.dtos";
     }
 
     template : "templates/java/dto.egl"
@@ -133,14 +136,15 @@ rule DtoCli2Java transform dto : String in : dtos {
     parameters : Map {
         "microserviceName" = mName,
         "dtoName" = dto,
-        "params" = params
+        "params" = params,
+        "package" = package
     }
 }
 
 rule Command2Java transform e : Tuple in : endpointsData {
     template : "templates/java/command.egl"
 
-    target : "../../../microservices/client/" + e.mName + "-cli/src-gen/main/java/uk/ac/york/eng2/assessment/" + e.mName + "/cli/" + e.controllerName + "/" + e.endpoint.name.ftuc() + "Command.java"
+    target : "../../../microservices/client/" + e.mName + "-cli/src-gen/main/java/uk/ac/york/eng2/assessment/" + e.mName + "/cli/" + e.controllerName + "/" + e.endpoint.name.ftuc() + e.controllerName.ftuc() + "Command.java"
 
     parameters : Map {
         "microserviceName" = e.mName,
