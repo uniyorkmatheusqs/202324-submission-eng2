@@ -16,6 +16,7 @@ public class HashtagController implements IHashtagController {
 
     @Override
     public HttpResponse<List<String>> list() {
-        return HttpResponse.ok(repository.listTopHashtags()) ;
+        long lastHourTimestamp = System.currentTimeMillis() - (1 * 60 * 60 * 1000);
+        return HttpResponse.ok(repository.listTopHashtags(lastHourTimestamp)) ;
     }
 }
