@@ -10,7 +10,9 @@ import io.micronaut.http.annotation.*;
 import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].dtos.*;
 [%}%]
 
+[%if (controller.endpoints.exists(e| e.queryParams.exists(p| p.type == Types#CustomObject) or e.response != null and e.response.type == Types#CustomObject)) {%]
 import uk.ac.york.eng2.assessment.[%=microserviceName%].domain.*;
+[%}%]
 
 public interface I[%=controller.name.ftuc()%]Controller {
     public static final String BASE_URI = "[%=controller.uri%]";
@@ -40,10 +42,6 @@ operation getEndpointType(property): String {
     }
 
     var javaType = property.getJavaType();
-    if (property.type == Types#CustomObject) {
-        return javaType;
-    }
-
     return "HttpResponse<" + javaType + ">";
 }
 
@@ -54,6 +52,7 @@ operation Property getJavaType(): String {
         case Types#CustomString : baseType = "String";
         case Types#CustomBoolean : baseType = "Boolean";
         case Types#CustomObject : baseType = self.name.ftuc();
+        case Types#LanguageObject : baseType = "Object";
         default: baseType = "Object";
     }
 

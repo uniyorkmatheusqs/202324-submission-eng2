@@ -7,7 +7,7 @@ import io.micronaut.http.client.annotation.Client;
 [%if (controller.endpoints.exists(e| e.queryParams.size() > 0)) {%]
 import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].cli.dtos.*;
 [%}%]
-[%if (controller.endpoints.exists(e| e.queryParams.exists(p| p.type == Types#CustomObject))) {%]
+[%if (controller.endpoints.exists(e| e.queryParams.exists(p| p.type == Types#CustomObject) or e.response != null and e.response.type == Types#CustomObject)) {%]
 import uk.ac.york.eng2.assessment.[%=microserviceName%].cli.domain.*;
 [%}%]
 

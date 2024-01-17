@@ -3,6 +3,8 @@ package main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].events;
 import java.util.List;
 import io.micronaut.configuration.kafka.annotation.*;
 
+import uk.ac.york.eng2.assessment.[%=microserviceName%].events.*;
+
 public abstract class I[%=topic.name.toJavaNotation()%]Consumer {
 	public static final String TOPIC_[%=topic.name.toJavaNotationConstant()%] = "[%=topic.name%]";
 
@@ -33,7 +35,7 @@ operation buildTopicParams(event) {
         params.add(event.values.first().getJavaType() + " " + event.values.first().name.toJavaNotation().ftlc());
     } else {
         var eventName = event.name.toJavaNotation().ftlc();
-        params.add(eventName.ftuc() + "Event" + " " + eventName + "Event");
+        params.add(eventName.ftuc() + "EventImpl" + " " + eventName + "Event");
     }
 
     return params.concat(", ");

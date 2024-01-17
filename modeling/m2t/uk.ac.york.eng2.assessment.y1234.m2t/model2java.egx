@@ -1,7 +1,6 @@
 pre {
     var controllerData = Bag{};
-    var dtos = Set{};
-    var dtosData = Map{};
+    var dtos = Bag{};
     var publishers = Bag{};
     var listeners = Bag{};
     var events = Bag{};
@@ -15,8 +14,7 @@ pre {
 
             for (e in endpoints) {
                 var dto = e.name.ftuc() + c.name.ftuc() + "DTO"; 
-                dtos.add(dto);
-                dtosData.put(dto, new Tuple(mName = m.name, params = e.queryParams));
+                dtos.add(new Tuple(mName = m.name, params = e.queryParams, dto = dto));
             }
 
             endpointsData.addAll(c.endpoints.collect(e | new Tuple(mName = m.name, controllerName = c.name, endpoint = e)).asBag());
@@ -58,21 +56,20 @@ rule Controller2Java transform m : Tuple in : controllerData {
     }
 }
 
-rule Dto2Java transform dto : String in : dtos {
+rule Dto2Java transform dto : Tuple in : dtos {
     pre {
-        var d = dtosData.get(dto);
-        var mName = d.mName;
-        var params = d.params;
+        var mName = dto.mName;
+        var params = dto.params;
         var package = "main.java.uk.ac.york.eng2.assessment." + mName + ".dtos";
     }
 
     template : "templates/java/dto.egl"
 
-    target : "../../../microservices/" + mName + "-microservice/src-gen/main/java/uk/ac/york/eng2/assessment/" + mName + "/dtos/" + dto.ftuc() + ".java"
+    target : "../../../microservices/" + mName + "-microservice/src-gen/main/java/uk/ac/york/eng2/assessment/" + mName + "/dtos/" + dto.dto.ftuc() + ".java"
 
     parameters : Map {
         "microserviceName" = mName,
-        "dtoName" = dto,
+        "dtoName" = dto.dto,
         "params" = params,
         "package" = package
     }
@@ -123,19 +120,18 @@ rule Event2Java transform t : Tuple in : events {
 
 rule DtoCli2Java transform dto : String in : dtos {
     pre {
-        var d = dtosData.get(dto);
-        var mName = d.mName;
-        var params = d.params;
+        var mName = dto.mName;
+        var params = dto.params;
         var package = "main.java.uk.ac.york.eng2.assessment." + mName + ".cli.dtos";
     }
 
     template : "templates/java/dto.egl"
 
-    target : "../../../microservices/client/" + mName + "-cli/src-gen/main/java/uk/ac/york/eng2/assessment/" + mName + "/cli/dtos/" + dto.ftuc() + ".java"
+    target : "../../../microservices/client/" + mName + "-cli/src-gen/main/java/uk/ac/york/eng2/assessment/" + mName + "/cli/dtos/" + dto.dto.ftuc() + ".java"
 
     parameters : Map {
         "microserviceName" = mName,
-        "dtoName" = dto,
+        "dtoName" = dto.dto,
         "params" = params,
         "package" = package
     }

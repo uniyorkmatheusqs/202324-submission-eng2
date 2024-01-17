@@ -52,4 +52,5 @@ enum Types {
     CustomString;
     CustomBoolean;
     CustomObject;
+    LanguageObject;
 }

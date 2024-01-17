@@ -90,21 +90,26 @@
       <endpoint name="ping" method="GET" route="/"/>
     </controller>
     <controller name="hashtags" uri="/hashtags">
-      <endpoint name="subscribe" method="POST" route="/{id}/subscribe">
+      <endpoint name="subscribe" method="POST" route="/{hashtag}/subscribe/user/{userId}">
         <routeparams>
-          <property name="id" type="CustomLong" />
+          <property name="hashtag" type="CustomString" />
+          <property name="userId" type="CustomLong" />
         </routeparams>
       </endpoint>
-      <endpoint name="unsubscribe" method="POST" route="/{id}/unsubscribe">
+      <endpoint name="unsubscribe" method="POST" route="/{hashtag}/unsubscribe/user/{userId}">
         <routeparams>
-          <property name="id" type="CustomLong" />
+          <property name="hashtag" type="CustomString" />
+          <property name="userId" type="CustomLong" />
         </routeparams>
       </endpoint>
       <endpoint name="list" method="GET" route="/next/video">
         <queryparams>
-          <property name="hashtagId" type="CustomLong" />
+          <property name="hashtag" type="CustomString" />
           <property name="userId" type="CustomLong" />
         </queryparams>
+        <response>
+          <property name="video" type="LanguageObject"/>
+        </response>
       </endpoint>
     </controller>
   </microservice>

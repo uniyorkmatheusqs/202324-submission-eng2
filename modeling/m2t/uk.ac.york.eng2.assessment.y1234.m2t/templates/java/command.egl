@@ -8,7 +8,7 @@ import picocli.CommandLine.Parameters;
 [%if (endpoint.queryParams.size() > 0) {%]
 import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].cli.dtos.*;
 [%}%]
-[%if (endpoint.queryParams.exists(p| p.type == Types#CustomObject)) {%]
+[%if (endpoint.queryParams.exists(p| p.type == Types#CustomObject) or endpoint.response != null and endpoint.response.type == Types#CustomObject) {%]
 import uk.ac.york.eng2.assessment.[%=microserviceName%].cli.domain.*;
 [%}%]
 
