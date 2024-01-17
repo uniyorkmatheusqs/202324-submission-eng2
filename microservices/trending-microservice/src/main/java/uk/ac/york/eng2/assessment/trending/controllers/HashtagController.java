@@ -1,14 +1,21 @@
 package uk.ac.york.eng2.assessment.trending.controllers;
 
-import io.micronaut.http.HttpResponse;
-import main.java.uk.ac.york.eng2.assessment.trending.controllers.IHashtagController;
+import java.util.List;
 
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.annotation.Controller;
+import jakarta.inject.Inject;
+import main.java.uk.ac.york.eng2.assessment.trending.controllers.IHashtagController;
+import uk.ac.york.eng2.assessment.trending.repositories.HashtagsRepository;
+
+@Controller(IHashtagController.BASE_URI)
 public class HashtagController implements IHashtagController {
 
+    @Inject
+    private HashtagsRepository repository;
+
     @Override
-    public HttpResponse<String> list() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'list'");
+    public HttpResponse<List<String>> list() {
+        return HttpResponse.ok(repository.listTopHashtags()) ;
     }
-    
 }

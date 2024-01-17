@@ -77,7 +77,11 @@
       <endpoint name="ping" method="GET" route="/"/>
     </controller>
     <controller name="hashtag" uri="/hashtags">
-      <endpoint name="list" method="GET" route="/"/>
+      <endpoint name="list" method="GET" route="/">
+        <response>
+          <property name="hashtags" type="CustomString" isarray="true"/>
+        </response>
+      </endpoint>
     </controller>
   </microservice>
 

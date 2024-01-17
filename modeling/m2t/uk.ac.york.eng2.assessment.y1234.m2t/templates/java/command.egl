@@ -5,8 +5,12 @@ import io.micronaut.http.HttpResponse;
 import jakarta.inject.Inject;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
+[%if (endpoint.queryParams.size() > 0) {%]
 import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].cli.dtos.*;
+[%}%]
+[%if (endpoint.queryParams.exists(p| p.type == Types#CustomObject)) {%]
 import uk.ac.york.eng2.assessment.[%=microserviceName%].cli.domain.*;
+[%}%]
 
 @Command(name="[%=endpoint.name%]-[%=controllerName%]", description="[%=endpoint.name.ftuc()%] [%=controllerName.ftlc()%]", mixinStandardHelpOptions = true)
 public class [%=endpoint.name.ftuc()%][%=controllerName.ftuc()%]Command implements Runnable {

@@ -4,10 +4,14 @@ import java.util.List;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.client.annotation.Client;
+[%if (controller.endpoints.exists(e| e.queryParams.size() > 0)) {%]
 import main.java.uk.ac.york.eng2.assessment.[%=microserviceName%].cli.dtos.*;
+[%}%]
+[%if (controller.endpoints.exists(e| e.queryParams.exists(p| p.type == Types#CustomObject))) {%]
 import uk.ac.york.eng2.assessment.[%=microserviceName%].cli.domain.*;
+[%}%]
 
-@Client("${videos.url:`http://localhost:8080[%=controller.uri%]`}")
+@Client("${[%=microserviceName%].url:`http://localhost:8080[%=controller.uri%]`}")
 public interface [%=controller.name.ftuc()%]Client {
     
     [%for (e in controller.endpoints) {%]
