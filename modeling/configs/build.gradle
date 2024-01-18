@@ -31,11 +31,11 @@ task setupEpsilonTasks {
 task run {
     dependsOn tasks.setupEpsilonTasks
     
-    ant.'epsilon.emf.loadModel'(name: 'M', modelfile: '../models/uk.ac.york.eng2.assessment.y1234.models/model.flexmi', metamodelfile: '../metamodel/uk.ac.york.eng2.assessment.y1234/metamodel.emf')
+    ant.'epsilon.emf.loadModel'(name: 'M', modelfile: '../models/uk.ac.york.eng2.assessment.Y3927120.models/Y3927120.flexmi', metamodelfile: '../metamodel/uk.ac.york.eng2.assessment.Y3927120/Y3927120.emf')
 
-    ant.'epsilon.evl'(src: '../metamodel/uk.ac.york.eng2.assessment.y1234.validation/validation.evl'){ model(ref: 'M') }
+    ant.'epsilon.evl'(src: '../metamodel/uk.ac.york.eng2.assessment.Y3927120.validation/Y3927120.evl'){ model(ref: 'M') }
     
-    ant.'epsilon.egl'(src: '../m2t/uk.ac.york.eng2.assessment.y1234.m2t/model2java.egx' ){ model(ref: 'M') }
+    ant.'epsilon.egl'(src: '../m2t/uk.ac.york.eng2.assessment.Y3927120.m2t/Y3927120.egx' ){ model(ref: 'M') }
 
-    ant.'epsilon.egl'(src: '../models/uk.ac.york.eng2.assessment.y1234.models/model2graphviz.egx' ){ model(ref: 'M') }
+    ant.'epsilon.egl'(src: '../models/uk.ac.york.eng2.assessment.Y3927120.models/model2graphviz.egx' ){ model(ref: 'M') }
 }
