@@ -1,59 +1,118 @@
 services:
-  # Our database management system
-  db-videos:
+  db-recommendation:
     image: mariadb:11
+    restart: unless-stopped
     environment:
-      MARIADB_USER: todo
-      MARIADB_PASSWORD: todosecret
+      MARIADB_USER: &recommendation_dbuser todo
+      MARIADB_PASSWORD: &recommendation_dbpass todosecret
       MARIADB_ROOT_PASSWORD: iamroot
-      MARIADB_DATABASE: videos
+      MARIADB_DATABASE: &recommendation_dbname recommendations
     volumes:
-      - videos_mariadb_data:/var/lib/mysql
+      - recommendation_mariadb_data:/var/lib/mysql
+    networks:
+      - recommendation_net
+  
+  db-video:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_USER: &video_dbuser todo
+      MARIADB_PASSWORD: &video_dbpass todosecret
+      MARIADB_ROOT_PASSWORD: iamroot
+      MARIADB_DATABASE: &video_dbname videos
+    volumes:
+      - video_mariadb_data:/var/lib/mysql
+    networks:
+      - video_net
+
+  db-trending:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_USER: &trending_dbuser todo
+      MARIADB_PASSWORD: &trending_dbpass todosecret
+      MARIADB_ROOT_PASSWORD: iamroot
+      MARIADB_DATABASE: &trending_dbname trendings
+    volumes:
+      - trending_mariadb_data:/var/lib/mysql
+    networks:
+      - trending_net
+  
+  db-subscription:
+    image: mariadb:11
+    restart: unless-stopped
+    environment:
+      MARIADB_USER: &subscription_dbuser todo
+      MARIADB_PASSWORD: &subscription_dbpass todosecret
+      MARIADB_ROOT_PASSWORD: iamroot
+      MARIADB_DATABASE: &subscription_dbname subscriptions
+    volumes:
+      - subscription_mariadb_data:/var/lib/mysql
+    networks:
+      - subscription_net
+
+  recommendation-microservice:
+    image: recommendation-microservice:latest
+    restart: unless-stopped
     ports:
-      - 3306:3306
+      - 8083:8080
+    environment:
+      DB_HOST: db-recommendation
+      DB_USER: *recommendation_dbuser
+      DB_PASSWORD: *recommendation_dbpass
+      DB_NAME: *recommendation_dbname
+      KAFKA_BOOTSTRAP_SERVERS: kafka-0:9092,kafka-1:9092,kafka-2:9092
+      MICRONAUT_ENVIRONMENTS: prod
+    networks:
+      - recommendation_net
+  
+  video-microservice:
+    image: video-microservice:latest
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    environment:
+      DB_HOST: db-video
+      DB_USER: *video_dbuser
+      DB_PASSWORD: *video_dbpass
+      DB_NAME: *video_dbname
+      KAFKA_BOOTSTRAP_SERVERS: kafka-0:9092,kafka-1:9092,kafka-2:9092
+      MICRONAUT_ENVIRONMENTS: prod
+    networks:
+      - video_net
+
+  trending-microservice:
+    image: trending-microservice:latest
+    restart: unless-stopped
+    ports:
+      - 8081:8080
+    environment:
+      DB_HOST: db-trending
+      DB_USER: *trending_dbuser
+      DB_PASSWORD: *trending_dbpass
+      DB_NAME: *trending_dbname
+      KAFKA_BOOTSTRAP_SERVERS: kafka-0:9092,kafka-1:9092,kafka-2:9092
+      MICRONAUT_ENVIRONMENTS: prod
+    networks:
+      - trending_net
+
+  subscription-microservice:
+    image: subscription-microservice:latest
+    restart: unless-stopped
+    ports:
+      - 8082:8080
+    environment:
+      DB_HOST: db-subscription
+      DB_USER: *subscription_dbuser
+      DB_PASSWORD: *subscription_dbpass
+      DB_NAME: *subscription_dbname
+      KAFKA_BOOTSTRAP_SERVERS: kafka-0:9092,kafka-1:9092,kafka-2:9092
+      MICRONAUT_ENVIRONMENTS: prod
+    networks:
+      - subscription_net
     
-  db-trends:
-    image: mariadb:11
-    environment:
-      MARIADB_USER: todo
-      MARIADB_PASSWORD: todosecret
-      MARIADB_ROOT_PASSWORD: iamroot
-      MARIADB_DATABASE: trends
-    volumes:
-      - trends_mariadb_data:/var/lib/mysql
-    ports:
-      - 3307:3306
-
-  db-subscriptions:
-    image: mariadb:11
-    environment:
-      MARIADB_USER: todo
-      MARIADB_PASSWORD: todosecret
-      MARIADB_ROOT_PASSWORD: iamroot
-      MARIADB_DATABASE: subscriptions
-    volumes:
-      - subscriptions_mariadb_data:/var/lib/mysql
-    ports:
-      - 3308:3306
-
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    ports:
-      - 9000:8080
-    depends_on:
-      - kafka-0
-      - kafka-1
-      - kafka-2
-    environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-0:9092
-      KAFKA_CLUSTERS_0_METRICS_PORT: 9997
-      DYNAMIC_CONFIG_ENABLED: "true"
-
   kafka-0:
     image: docker.io/bitnami/kafka:3.5
-    ports:
-      - 9094:9094
     environment:
       # KRaft settings
       - KAFKA_CFG_NODE_ID=0
@@ -61,14 +120,15 @@ services:
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka-0:9093,1@kafka-1:9093,2@kafka-2:9093
       - KAFKA_KRAFT_CLUSTER_ID=abcdefghijklmnopqrstuv
       # Listeners
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092,EXTERNAL://localhost:9094
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
       # Default topic settings
       - KAFKA_CFG_NUM_PARTITIONS=6
       - KAFKA_CFG_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
       # JMX port for metrics
       - JMX_PORT=9997
       - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka-0 -Dcom.sun.management.jmxremote.rmi.port=9997
@@ -77,8 +137,6 @@ services:
 
   kafka-1:
     image: docker.io/bitnami/kafka:3.5
-    ports:
-      - 9095:9094
     environment:
       # KRaft settings
       - KAFKA_CFG_NODE_ID=1
@@ -86,14 +144,15 @@ services:
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka-0:9093,1@kafka-1:9093,2@kafka-2:9093
       - KAFKA_KRAFT_CLUSTER_ID=abcdefghijklmnopqrstuv
       # Listeners
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092,EXTERNAL://localhost:9095
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093s
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
       # Default topic settings
       - KAFKA_CFG_NUM_PARTITIONS=6
       - KAFKA_CFG_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
       # JMX port for metrics
       - JMX_PORT=9997
       - KAFKA_JMX_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka-1 -Dcom.sun.management.jmxremote.rmi.port=9997
@@ -102,8 +161,6 @@ services:
 
   kafka-2:
     image: docker.io/bitnami/kafka:3.5
-    ports:
-      - 9096:9094
     environment:
       # KRaft settings
       - KAFKA_CFG_NODE_ID=2
@@ -111,11 +168,12 @@ services:
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka-0:9093,1@kafka-1:9093,2@kafka-2:9093
       - KAFKA_KRAFT_CLUSTER_ID=abcdefghijklmnopqrstuv
       # Listeners
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092,EXTERNAL://localhost:9096
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
       # Default topic settings
       - KAFKA_CFG_NUM_PARTITIONS=6
       - KAFKA_CFG_DEFAULT_REPLICATION_FACTOR=3
@@ -126,9 +184,20 @@ services:
       - kafka_2_data:/bitnami/kafka
 
 volumes:
-  videos_mariadb_data:
-  trends_mariadb_data:
-  subscriptions_mariadb_data:
+  recommendation_mariadb_data:
+  video_mariadb_data:
+  trending_mariadb_data:
+  subscription_mariadb_data:
   kafka_0_data:
   kafka_1_data:
   kafka_2_data:
+
+networks:
+  recommendation_net:
+    driver: bridge
+  video_net:
+    driver: bridge
+  trending_net:
+    driver: bridge
+  subscription_net:
+    driver: bridge

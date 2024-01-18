@@ -63,3 +63,21 @@ Putting everything together, we recommend doing this to get started:
 1. Run a nested Eclipse instance from the metamodel project.
 1. Import the rest of the modeling projects in the nested Eclipse instance.
 1. Rename the imported projects and their folders to suit your examination number.
+
+# Create Topics 
+
+docker compose exec -e JMX_PORT= kafka-0 kafka-topics.sh
+    --bootstrap-server kafka-0:9092
+    --create --topic video-post --replication-factor 3 --partitions 6
+
+docker compose exec -e JMX_PORT= kafka-0 kafka-topics.sh
+    --bootstrap-server kafka-0:9092
+    --create --topic video-interaction --replication-factor 3 --partitions 6
+
+docker compose exec -e JMX_PORT= kafka-0 kafka-topics.sh
+    --bootstrap-server kafka-0:9092
+    --create --topic top-trending-hashtags --replication-factor 3 --partitions 6
+
+docker compose exec -e JMX_PORT= kafka-0 kafka-topics.sh
+    --bootstrap-server kafka-0:9092Stre
+    --create --topic hashtags-subscriptions --replication-factor 3 --partitions 6

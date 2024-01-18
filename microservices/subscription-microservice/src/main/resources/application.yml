@@ -3,7 +3,7 @@ micronaut:
     name: subscriptionMicroservice
 datasources:
   default:
-    url: jdbc:mariadb://${DB_HOST:`localhost:3308`}/${DB_NAME:subscriptions}
+    url: jdbc:mariadb://${DB_HOST:`localhost:3306`}/${DB_NAME:subscriptions}
     username: ${DB_USER:todo}
     password: ${DB_PASSWORD:todosecret}
     driver-class-name: org.mariadb.jdbc.Driver
